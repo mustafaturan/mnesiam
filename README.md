@@ -10,7 +10,7 @@ The package can be installed by adding `mnesiam` to your list of dependencies in
 
 ```elixir
 def deps do
-  [{:mnesiam, "~> 0.1.0"}]
+  [{:mnesiam, "~> 0.1.1"}]
 end
 ```
 

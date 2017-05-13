@@ -36,7 +36,7 @@ defmodule Mnesiam.Store do
   """
   def ensure_tables_loaded do
     tables = Mnesia.system_info(:local_tables)
-    case Mnesia.wait_for_tables(tables, table_load_timeout) do
+    case Mnesia.wait_for_tables(tables, table_load_timeout()) do
       :ok -> :ok
       {:error, reason} -> {:error, reason}
       {:timeout, bad_tables} -> {:error, {:timeout, bad_tables}}
