@@ -37,6 +37,7 @@ Edit your app's `config.exs` to add list of mnesia stores:
 ```elixir
 config :mnesiam,
   stores: [Mnesiam.Support.SampleStore, ...],
+  schema_type: :disc_copies, # defaults to :ram_copies
   table_load_timeout: 600_000 # milliseconds
 ```
 
