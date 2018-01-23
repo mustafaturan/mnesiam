@@ -16,22 +16,6 @@ defmodule Mnesiam.Store do
   end
 
   @doc """
-  Init schema
-  """
-  def init_schema do
-    current_node = Node.self()
-    case Mnesia.system_info(:extra_db_nodes) do
-      [] ->
-        case Mnesia.create_schema([current_node]) do
-          :ok -> :ok
-          {:error, {_, {:already_exists, _}}} -> :ok
-          {:error, reason} -> {:error, reason}
-        end
-      [_|_] -> :ok
-    end
-  end
-
-  @doc """
   Ensure tables loaded
   """
   def ensure_tables_loaded do
@@ -67,9 +51,10 @@ defmodule Mnesiam.Store do
   Copy schema
   """
   def copy_schema(cluster_node) do
-    case Mnesia.change_table_copy_type(:schema, cluster_node, :disc_copies) do
+    copy_type = Application.get_env(:mnesiam, :schema_type, :ram_copies)
+    case Mnesia.change_table_copy_type(:schema, cluster_node, copy_type) do
       {:atomic, :ok} -> :ok
-      {:aborted, {:already_exists, :schema, _, :disc_copies}} -> :ok
+      {:aborted, {:already_exists, :schema, _, _}} -> :ok
       {:aborted, reason} -> {:error, reason}
     end
   end

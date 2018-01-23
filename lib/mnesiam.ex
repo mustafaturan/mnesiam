@@ -22,8 +22,8 @@ defmodule Mnesiam do
   """
   def start do
     with :ok <- ensure_dir_exists(),
-         :ok <- Store.init_schema(),
          :ok <- start_server(),
+         :ok <- Store.copy_schema(Node.self()),
          :ok <- Store.init_tables(),
          :ok <- Store.ensure_tables_loaded() do
       :ok
