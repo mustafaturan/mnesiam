@@ -2,17 +2,14 @@ defmodule Mnesiam do
   @moduledoc """
   Mnesia Manager
   """
-
   require Logger
-  alias Mnesiam.Store
-  alias :mnesia, as: Mnesia
 
   @doc """
   Start Mnesia with/without a cluster
   """
-  def init_mnesia do
-    case Node.list() do
-      [h|_t] -> join_cluster(h)
+  def init_mnesia(nodes) do
+    case nodes do
+      [h | _t] -> join_cluster(h)
       [] -> start()
     end
   end
@@ -55,8 +52,9 @@ defmodule Mnesiam do
   Cluster status
   """
   def cluster_status do
-    running = Mnesia.system_info(:running_db_nodes)
-    stopped = Mnesia.system_info(:db_nodes) -- running
+    running = :mnesia.system_info(:running_db_nodes)
+    stopped = :mnesia.system_info(:db_nodes) -- running
+
     if stopped == [] do
       [{:running_nodes, running}]
     else
@@ -68,10 +66,10 @@ defmodule Mnesiam do
   Cluster with a node
   """
   def connect(cluster_node) do
-    case Mnesia.change_config(:extra_db_nodes, [cluster_node]) do
+    case :mnesia.change_config(:extra_db_nodes, [cluster_node]) do
       {:ok, [_cluster_node]} -> :ok
-      {:ok, []}     -> {:error, {:failed_to_connect_node, cluster_node}}
-      reason        -> {:error, reason}
+      {:ok, []} -> {:error, {:failed_to_connect_node, cluster_node}}
+      reason -> {:error, reason}
     end
   end
 
@@ -79,14 +77,14 @@ defmodule Mnesiam do
   Running Mnesia nodes
   """
   def running_nodes do
-    Mnesia.system_info(:running_db_nodes)
+    :mnesia.system_info(:running_db_nodes)
   end
 
   @doc """
   Is node in Mnesia cluster?
   """
   def node_in_cluster?(cluster_node) do
-    Enum.member?(Mnesia.system_info(:db_nodes), cluster_node)
+    Enum.member?(:mnesia.system_info(:db_nodes), cluster_node)
   end
 
   @doc """
@@ -115,12 +113,15 @@ defmodule Mnesiam do
   end
 
   defp ensure_dir_exists do
-    mnesia_dir = Mnesia.system_info(:directory)
+    mnesia_dir = :mnesia.system_info(:directory)
+
     with false <- File.exists?(mnesia_dir),
          :ok <- File.mkdir(mnesia_dir) do
       :ok
     else
-      true -> :ok
+      true ->
+        :ok
+
       {:error, reason} ->
         Logger.log(:debug, fn -> inspect(reason) end)
         {:error, reason}
@@ -128,28 +129,41 @@ defmodule Mnesiam do
   end
 
   defp start_server do
-    Mnesia.start()
+    :mnesia.start()
   end
 
   defp stop_server do
-    Mnesia.stop()
+    :mnesia.stop()
   end
 
   defp wait_for(:start) do
-    case Mnesia.system_info(:is_running) do
-      :yes      -> :ok
-      :no       -> {:error, :mnesia_unexpectedly_stopped}
-      :stopping -> {:error, :mnesia_unexpectedly_stopping}
+    case :mnesia.system_info(:is_running) do
+      :yes ->
+        :ok
+
+      :no ->
+        {:error, :mnesia_unexpectedly_stopped}
+
+      :stopping ->
+        {:error, :mnesia_unexpectedly_stopping}
+
       :starting ->
         Process.sleep(1_000)
         wait_for(:start)
     end
   end
+
   defp wait_for(:stop) do
-    case Mnesia.system_info(:is_running) do
-      :no       -> :ok
-      :yes      -> {:error, :mnesia_unexpectedly_running}
-      :starting -> {:error, :mnesia_unexpectedly_starting}
+    case :mnesia.system_info(:is_running) do
+      :no ->
+        :ok
+
+      :yes ->
+        {:error, :mnesia_unexpectedly_running}
+
+      :starting ->
+        {:error, :mnesia_unexpectedly_starting}
+
       :stopping ->
         Process.sleep(1_000)
         wait_for(:stop)

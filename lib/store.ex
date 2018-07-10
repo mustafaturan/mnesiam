@@ -1,17 +1,14 @@
-defmodule Mnesiam.Store do
+defmodule Store do
   @moduledoc """
   Mnesia Store Manager
   """
-
-  alias :mnesia, as: Mnesia
-
   @doc """
   Init tables
   """
   def init_tables do
-    case Mnesia.system_info(:extra_db_nodes) do
+    case :mnesia.system_info(:extra_db_nodes) do
       [] -> create_tables()
-      [_|_] -> copy_tables()
+      [_ | _] -> copy_tables()
     end
   end
 
@@ -19,8 +16,9 @@ defmodule Mnesiam.Store do
   Ensure tables loaded
   """
   def ensure_tables_loaded do
-    tables = Mnesia.system_info(:local_tables)
-    case Mnesia.wait_for_tables(tables, table_load_timeout()) do
+    tables = :mnesia.system_info(:local_tables)
+
+    case :mnesia.wait_for_tables(tables, table_load_timeout()) do
       :ok -> :ok
       {:error, reason} -> {:error, reason}
       {:timeout, bad_tables} -> {:error, {:timeout, bad_tables}}
@@ -31,9 +29,10 @@ defmodule Mnesiam.Store do
   Create tables
   """
   def create_tables do
-    Enum.each(stores(), fn (data_mapper) ->
+    Enum.each(stores(), fn data_mapper ->
       apply(data_mapper, :init_store, [])
     end)
+
     :ok
   end
 
@@ -41,9 +40,10 @@ defmodule Mnesiam.Store do
   Copy tables
   """
   def copy_tables do
-    Enum.each(stores(), fn (data_mapper) ->
+    Enum.each(stores(), fn data_mapper ->
       apply(data_mapper, :copy_store, [])
     end)
+
     :ok
   end
 
@@ -52,7 +52,8 @@ defmodule Mnesiam.Store do
   """
   def copy_schema(cluster_node) do
     copy_type = Application.get_env(:mnesiam, :schema_type, :ram_copies)
-    case Mnesia.change_table_copy_type(:schema, cluster_node, copy_type) do
+
+    case :mnesia.change_table_copy_type(:schema, cluster_node, copy_type) do
       {:atomic, :ok} -> :ok
       {:aborted, {:already_exists, :schema, _, _}} -> :ok
       {:aborted, reason} -> {:error, reason}
@@ -63,14 +64,14 @@ defmodule Mnesiam.Store do
   Delete schema
   """
   def delete_schema do
-    Mnesia.delete_schema([Node.self()])
+    :mnesia.delete_schema([Node.self()])
   end
 
   @doc """
   Delete schema copy
   """
   def del_schema_copy(cluster_node) do
-    case Mnesia.del_table_copy(:schema, cluster_node) do
+    case :mnesia.del_table_copy(:schema, cluster_node) do
       {:atomic, :ok} -> :ok
       {:aborted, reason} -> {:error, reason}
     end
