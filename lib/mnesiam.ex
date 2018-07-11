@@ -40,6 +40,16 @@ defmodule Mnesiam do
   end
 
   @doc """
+  Start Mnesia with/without a cluster. Test helper.
+  """
+  def init_mnesia(nodes, :test) do
+    case List.delete(List.flatten(nodes), Node.self()) do
+      [h | _t] -> join_cluster(h)
+      [] -> start()
+    end
+  end
+
+  @doc """
   Start Mnesia alone
   """
   def start do
