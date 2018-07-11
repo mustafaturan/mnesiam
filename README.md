@@ -9,34 +9,61 @@ The module docs can be found at [https://hexdocs.pm/mnesiam](https://hexdocs.pm/
 The package can be installed by adding `mnesiam` to your list of dependencies in `mix.exs`:
 
 ```elixir
-def deps do
-  [{:mnesiam, "~> 0.1.1"}]
+defp deps do
+  [{:mnesiam, "~> MAJ.MIN"}]
 end
 ```
 
 Ensure `mnesiam` is started before your application.
 
-Elixir Version >= 1.4 with `libcluster`
+Elixir Version >= 1.6 with `libcluster`
 
 ```elixir
-def application do
-  [extra_applications: [:libcluster, :mnesiam]]
-end
+    ...
+
+    cluster_data = Application.get_env(:libcluster, :topologies)
+
+    children = [
+      {
+        Cluster.Supervisor,
+        [
+          cluster_data,
+          [name: MyApp.ClusterSupervisor]
+        ]
+      },
+      {
+        Mnesiam.Supervisor,
+        [
+          cluster_data[:myapp][:config][:hosts],
+          [name: MyApp.MnesiamSupervisor]
+        ]
+      },
+
+    ...
 ```
 
-Elixir Version >= 1.4 without `libcluster`
+Elixir Version >= 1.6 without `libcluster`
 
 ```elixir
-def application do
-  [extra_applications: [:mnesiam]]
-end
+    ...
+
+    children = [
+      {
+        Mnesiam.Supervisor,
+        [
+          [:"a@127.0.0.1", :"b@127.0.0.1"],
+          [name: MyApp.MnesiamSupervisor]
+        ]
+      },
+
+    ...
 ```
 
 Edit your app's `config.exs` to add list of mnesia stores:
 
 ```elixir
 config :mnesiam,
-  stores: [Mnesiam.Support.SampleStore, ...],
+  stores: [MyApp.SampleStore, ...],
   schema_type: :disc_copies, # defaults to :ram_copies
   table_load_timeout: 600_000 # milliseconds
 ```
@@ -48,12 +75,10 @@ config :mnesiam,
 Create a table store and add it to your app's config.exs. Note: All stores *MUST* implement its own `init_store/0` to crete table and `copy_store/0` to copy table:
 
 ```elixir
-defmodule Mnesiam.Support.SampleStore do
+defmodule MyApp.SampleStore do
   @moduledoc """
   Sample store implementation
   """
-
-  alias :mnesia, as: Mnesia
 
   @table :sample_store
 
@@ -61,10 +86,10 @@ defmodule Mnesiam.Support.SampleStore do
   Mnesiam will call this method to init table
   """
   def init_store do
-    Mnesia.create_table(@table,
+    :mnesia.create_table(@table,
       [ram_copies: [Node.self()], attributes: [:id, :topic_id, :event]])
     # Sample index
-    Mnesia.add_table_index(@table, :topic_id)
+    :mnesia.add_table_index(@table, :topic_id)
     # Add table subscriptions to here
     # ...
   end
@@ -73,19 +98,18 @@ defmodule Mnesiam.Support.SampleStore do
   Mnesiam will call this method to copy table
   """
   def copy_store do
-    Mnesia.add_table_copy(@table, Node.self(), :ram_copies)
+    :mnesia.add_table_copy(@table, Node.self(), :ram_copies)
   end
 end
-
 ```
 
 ### Clustering
 
-If you are using `libcluster` or another clustering library just ensure that clustering library starts earlier than `mneasiam`. That's all, you do not need to do rest.
+If you are using `libcluster` or another clustering library just ensure that clustering library starts earlier than `mnesiam`. That's all, you do not need to do rest.
 
 If you are not using `libcluster` or similar clustering library then:
 
-- When a node joins to an erlang/elixir cluster, run `Mnesiam.init_store()` function on the *new node*; this will init and copy table contents from other online nodes.
+- When a node joins to an erlang/elixir cluster, run `Mnesiam.init_store/1` function on the *new node*; this will init and copy table contents from other online nodes.
 
 Enjoy!
 
