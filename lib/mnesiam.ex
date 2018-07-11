@@ -4,6 +4,19 @@ defmodule Mnesiam do
   """
   require Logger
 
+  use GenServer
+
+  def start_link(args) do
+    GenServer.start_link(__MODULE__, args, name: __MODULE__)
+  end
+
+  @impl true
+  def init(args) do
+    init_mnesia(args)
+
+    {:ok, []}
+  end
+
   @doc """
   Start Mnesia with/without a cluster
   """
