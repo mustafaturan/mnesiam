@@ -28,6 +28,11 @@ defmodule Mnesiam do
   Start Mnesia with/without a cluster
   """
   def init_mnesia(nodes) do
+    nodes =
+      Enum.filter(List.delete(Node.list(), Node.self()), fn node ->
+        node in List.delete(nodes, Node.self())
+      end)
+
     case nodes do
       [h | _t] -> join_cluster(h)
       [] -> start()
