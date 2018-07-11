@@ -30,7 +30,7 @@ defmodule Mnesiam do
   def init_mnesia(nodes) do
     nodes =
       Enum.filter(List.delete(Node.list(), Node.self()), fn node ->
-        node in List.delete(nodes, Node.self())
+        node in List.delete(List.flatten(nodes), Node.self())
       end)
 
     case nodes do
