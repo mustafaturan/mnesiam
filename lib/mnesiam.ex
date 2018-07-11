@@ -12,9 +12,16 @@ defmodule Mnesiam do
 
   @impl true
   def init(args) do
-    init_mnesia(args)
+    GenServer.cast(__MODULE__, {:init, args})
 
     {:ok, []}
+  end
+
+  @impl true
+  def handle_cast({:init, nodes}, _state) do
+    init_mnesia(nodes)
+
+    {:noreply, []}
   end
 
   @doc """
