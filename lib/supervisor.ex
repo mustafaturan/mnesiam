@@ -13,7 +13,7 @@ defmodule Mnesiam.Supervisor do
   @impl true
   def init([config, opts]) do
     opts = Keyword.put(opts, :strategy, :one_for_one)
-    children = [{Vanguard.Handler.Registrar, [config]}]
+    children = [{Mnesiam, [config]}]
     Supervisor.init(children, opts)
   end
 end
