@@ -5,7 +5,7 @@ defmodule Mnesiam.Mixfile do
   def project do
     [
       app: :mnesiam,
-      version: "0.2.0",
+      version: "0.3.0",
       elixir: "~> 1.6",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
@@ -21,7 +21,7 @@ defmodule Mnesiam.Mixfile do
 
   def application do
     [
-      extra_applications: [:logger, :mnesia]
+      extra_applications: [:logger]
     ]
   end
 
@@ -37,9 +37,7 @@ defmodule Mnesiam.Mixfile do
   defp elixirc_paths(_), do: ["lib"]
 
   defp description do
-    """
-    Mnesiam is a Mnesia db manager for painless Mnesia clustering.
-    """
+    "Mnesiam is a Mnesia db manager for painless Mnesia clustering."
   end
 
   defp package do
