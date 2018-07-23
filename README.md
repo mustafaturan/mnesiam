@@ -44,7 +44,7 @@ config :mnesiam,
 
 ### Table creation
 
-Create a table store and add it to your app's config.exs. Note: All stores *MUST* implement its own `init_store/0` to crete table and `copy_store/0` to copy table:
+Create a table store and add it to your app's config.exs. Note: All stores *MUST* implement its own `init_store/0` to create table and `copy_store/0` to copy table:
 
 ```elixir
 defmodule Mnesiam.Support.SampleStore do
@@ -84,7 +84,7 @@ If you are using `libcluster` or another clustering library just ensure that clu
 
 If you are not using `libcluster` or similar clustering library then:
 
-- When a node joins to an erlang/elixir cluster, run `Mnesiam.init_store()` function on the *new node*; this will init and copy table contents from other online nodes.
+- When a node joins to an erlang/elixir cluster, run `Mnesiam.init_mnesia()` function on the *new node*; this will init and copy table contents from other online nodes.
 
 Enjoy!
 
