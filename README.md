@@ -90,7 +90,7 @@ Enjoy!
 
 ## Warnings
 
-Use at your own risk, no warranty!
+Use at your own risk, no warranty! I am not planning to maintanence the library for long time. If you need a fresh blood, I recommend using [mnesiac](https://hex.pm/packages/mnesiac)([Github](https://github.com/beardedeagle/mnesiac)) library.
 
 ## Contributing
 
