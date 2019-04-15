@@ -1,3 +1,5 @@
+# THIS LIBRARY IS DEPRECATED IN FAVOR OF ACTIVE DEVELOPMENT AT [mnesiac LIBRARY](https://hex.pm/packages/mnesiac)([Github](https://github.com/beardedeagle/mnesiac)).
+
 # Mnesiam
 
 Mnesiam makes clustering easy for Mnesia database.
@@ -87,10 +89,6 @@ If you are not using `libcluster` or similar clustering library then:
 - When a node joins to an erlang/elixir cluster, run `Mnesiam.init_mnesia()` function on the *new node*; this will init and copy table contents from other online nodes.
 
 Enjoy!
-
-## Warnings
-
-Use at your own risk, no warranty! I am not planning to maintanence the library for long time. If you need a fresh blood, I recommend using [mnesiac](https://hex.pm/packages/mnesiac)([Github](https://github.com/beardedeagle/mnesiac)) library.
 
 ## Contributing
 
